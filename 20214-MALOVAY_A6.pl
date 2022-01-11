@@ -159,7 +159,6 @@ collision(ExamID, RoomNum, Day, From, [_| OtherExams]) :-
 % @param CurState - current schedule
 % @param last four - parameters of the exam
 can_be_event(CurState, ExamID, RoomNum, Day, From) :-
-    not(member(event(ExamID, _, _, _), CurState)),
     session(Day),
     is_in_time(ExamID, RoomNum, Day, From),
     not(collision(ExamID, RoomNum, Day, From, CurState)).
