@@ -109,15 +109,15 @@ is_vacant_room((RoomNum, Day, From, Ending)) :-
 % @param Day - day of the exam
 % @param Start - starting time of the exam
 is_in_time(ExamID, RoomNum, Day, Start) :-
-    classroom_available(RoomNum, Day, From, Ending), 
-    exam_duration(ExamID, Duration),
-    Start > From,
-    End is Start + Duration,
-    End =< Ending,
-    st_group(ExamID, Students),
-    length(Students, Ammount),
-    classroom_capacity(RoomNum, RoomCapacity),
-    Ammount =< RoomCapacity.
+    is_vacant_room(RoomNum, Day, From, Ending), % is classroom avaliable during this time?
+    exam_duration(ExamID, Duration), % your predicate. Get exam duration
+    Start > From, % starting time of the exam is after 'from' - avaliable time
+    End is Start + Duration, 
+    End =< Ending, % 'end' time of the exam is before 'ending' avaliable time
+    st_group(ExamID, Students), % your predicate. Get count of students of the group.
+    length(Students, Ammount), 
+    classroom_capacity(RoomNum, RoomCapacity), %check classroom capacity
+    Ammount =< RoomCapacity. % can we place all students in this classroom
 
 
 % Is there time collision
@@ -126,12 +126,12 @@ is_in_time(ExamID, RoomNum, Day, Start) :-
 % @param From1 - starting time of the first exam
 % @param From2 - starting time of the second exam
 time_collision(ExamID1, ExamID2, From1, From2):-
-    exam_duration(ExamID1, Duration1),
-    exam_duration(ExamID2, Duration2),
+    exam_duration(ExamID1, Duration1), % get duration of the first exam 
+    exam_duration(ExamID2, Duration2), % get duration of the second exam
     Ending1 is From1 + Duration1,
     Ending2 is From2 + Duration2,
-    (between(From1, Ending1, From2); 
-    between(From2, Ending2, From1)).
+    (between(From1, Ending1, From2); % starting time of the second exam is during first exam
+    between(From2, Ending2, From1)). % starting time of the first exam is during second exam
 
 % Check for collisions: 2 exams for one student, teacher, classroom
 % @param first four parameters - parameters of the exam to check collision
@@ -139,11 +139,11 @@ time_collision(ExamID1, ExamID2, From1, From2):-
 collision(ExamID1, _, Day, From1, [event(ExamID2, _, Day, From2)|_]):-
     teacher_teaches_both_classes(ExamID1, ExamID2), % Check for teachers who has 2 exams in one day
     student_follows_both_classes(ExamID1, ExamID2), % Check for student who has 2 exams in one day
-    time_collision(ExamID1, ExamID2, From1, From2).
+    time_collision(ExamID1, ExamID2, From1, From2). % check for time collision
 
 collision(ExamID1, RoomNum1, Day, From1, [event(ExamID2, RoomNum2, Day, From2)|_]):-
     RoomNum1 == RoomNum2, % Check for 2 exams in one auditory at the same time
-    time_collision(ExamID1, ExamID2, From1, From2).
+    time_collision(ExamID1, ExamID2, From1, From2). % check for time collision
 
 % No collision, go next iteration
 % @param first four parameters - parameters of the exam to check collision
@@ -157,9 +157,9 @@ collision(ExamID, RoomNum, Day, From, [_| OtherExams]) :-
 % @param CurState - current schedule
 % @param last four - parameters of the exam
 can_be_event(CurState, ExamID, RoomNum, Day, From) :-
-    session(Day),
-    is_in_time(ExamID, RoomNum, Day, From),
-    not(collision(ExamID, RoomNum, Day, From, CurState)).
+    session(Day), % during this session
+    is_in_time(ExamID, RoomNum, Day, From), % can be during this time
+    not(collision(ExamID, RoomNum, Day, From, CurState)). % don't have collision with other exams
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
