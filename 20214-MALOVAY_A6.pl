@@ -136,14 +136,12 @@ time_collision(ExamID1, ExamID2, From1, From2):-
 % Check for collisions: 2 exams for one student, teacher, classroom
 % @param first four parameters - parameters of the exam to check collision
 % @param list - there stored all events
-collision(ExamID1, _, Day1, From1, [event(ExamID2, _, Day2, From2)|_]):-
-    Day1 == Day2,
+collision(ExamID1, _, Day, From1, [event(ExamID2, _, Day, From2)|_]):-
     teacher_teaches_both_classes(ExamID1, ExamID2), % Check for teachers who has 2 exams in one day
     student_follows_both_classes(ExamID1, ExamID2), % Check for student who has 2 exams in one day
     time_collision(ExamID1, ExamID2, From1, From2).
 
-collision(ExamID1, RoomNum1, Day1, From1, [event(ExamID2, RoomNum2, Day2, From2)|_]):-
-    Day1 == Day2,
+collision(ExamID1, RoomNum1, Day, From1, [event(ExamID2, RoomNum2, Day, From2)|_]):-
     RoomNum1 == RoomNum2, % Check for 2 exams in one auditory at the same time
     time_collision(ExamID1, ExamID2, From1, From2).
 
