@@ -109,7 +109,7 @@ is_vacant_room((RoomNum, Day, From, Ending)) :-
 % @param Day - day of the exam
 % @param Start - starting time of the exam
 is_in_time(ExamID, RoomNum, Day, Start) :-
-    is_vacant_room(RoomNum, Day, From, Ending), % is classroom avaliable during this time?
+    is_vacant_room((RoomNum, Day, From, Ending)), % is classroom avaliable during this time?
     exam_duration(ExamID, Duration), % your predicate. Get exam duration
     Start > From, % starting time of the exam is after 'from' - avaliable time
     End is Start + Duration, 
